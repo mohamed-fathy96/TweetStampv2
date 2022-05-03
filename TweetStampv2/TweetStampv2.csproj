@@ -1,0 +1,85 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="OriginStamp.ApiClient" Version="2.0.2" />
+		<PackageReference Include="RestSharp" Version="107.3.0" />
+		<PackageReference Include="TweetinviAPI" Version="5.0.4" />
+		<PackageReference Include="TweetinviAPI.AspNetPlugin" Version="5.0.4" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Include="asn1rtcs">
+	    <HintPath>m3api\asn1rtcs.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ICSharpCode.SharpZipLib">
+	    <HintPath>m3api\ICSharpCode.SharpZipLib.dll</HintPath>
+	  </Reference>
+	  <Reference Include="log4net">
+	    <HintPath>m3api\log4net.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-asic">
+	    <HintPath>m3api\ma3api-asic.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-asn">
+	    <HintPath>m3api\ma3api-asn.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-certstore">
+	    <HintPath>m3api\ma3api-certstore.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-certvalidation">
+	    <HintPath>m3api\ma3api-certvalidation.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-cmssignature">
+	    <HintPath>m3api\ma3api-cmssignature.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-common">
+	    <HintPath>m3api\ma3api-common.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-crypto">
+	    <HintPath>m3api\ma3api-crypto.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-crypto-bouncyprovider">
+	    <HintPath>m3api\ma3api-crypto-bouncyprovider.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-infra">
+	    <HintPath>m3api\ma3api-infra.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-mssclient">
+	    <HintPath>m3api\ma3api-mssclient.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-mssclient-aveaprovider">
+	    <HintPath>m3api\ma3api-mssclient-aveaprovider.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-mssclient-turkcellprovider">
+	    <HintPath>m3api\ma3api-mssclient-turkcellprovider.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-mssclient-vodafoneprovider">
+	    <HintPath>m3api\ma3api-mssclient-vodafoneprovider.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-pkcs11-interop">
+	    <HintPath>m3api\ma3api-pkcs11-interop.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-signature">
+	    <HintPath>m3api\ma3api-signature.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-smartcard">
+	    <HintPath>m3api\ma3api-smartcard.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ma3api-xmlsignature">
+	    <HintPath>m3api\ma3api-xmlsignature.dll</HintPath>
+	  </Reference>
+	  <Reference Include="MobilImzaYapilari">
+	    <HintPath>m3api\MobilImzaYapilari.dll</HintPath>
+	  </Reference>
+	  <Reference Include="nunit.framework">
+	    <HintPath>m3api\nunit.framework.dll</HintPath>
+	  </Reference>
+	  <Reference Include="VodafoneMobilImza">
+	    <HintPath>m3api\VodafoneMobilImza.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+
+</Project>
