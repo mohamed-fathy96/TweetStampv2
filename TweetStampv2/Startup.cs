@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,6 +11,8 @@ using System.Threading.Tasks;
 using Tweetinvi;
 using Tweetinvi.AspNet;
 using Tweetinvi.Models;
+using TweetStampv2.Data;
+using TweetStampv2.Services;
 
 namespace TweetStampv2
 {
@@ -22,25 +25,25 @@ namespace TweetStampv2
         {
             Configuration = configuration;
         }
-
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            Plugins.Add<AspNetPlugin>();
-            var credentials = new TwitterCredentials("0dHtT2WrmeA3HEzYYzDe7Pqwv",
-                "XPFpwV5kKeJHF2qfhnEj36HtK4HTRJocs7JovoELsKndnlATEi",
-                "1519700194912358400-JZjqud4Z6HefWCXyorAsVkRDyNcpIn",
-                "KjOJPoWVMJLNf6P1o0cuSXLrSeLbjwMAidP3j0FsVWR9s")
+            Plugins.Add<AspNetPlugin>();           
+            var credentials = new TwitterCredentials(Configuration["consumerKey"],
+                Configuration["consumerSecret"],
+                Configuration["accessToken"],
+                Configuration["accessTokenSecret"])
             {
-                BearerToken = "AAAAAAAAAAAAAAAAAAAAAIVCcAEAAAAAbUTLXryvf%2FqCNK0IaAxKBn25fcU%3DH2vc8WbCNE99AgoiQP3ar2Cim9z1UpXVk9DIXDBGamOL9sZcY3"
+                BearerToken = Configuration["bearerToken"] 
             };
 
             WebhookClient = new TwitterClient(credentials);
             AccountActivityRequestHandler = WebhookClient.AccountActivity.CreateRequestHandler();
             services.AddControllersWithViews();
-            services.AddSingleton<ITwitterClient>(WebhookClient);
-            services.AddSingleton<IAccountActivityRequestHandler>(AccountActivityRequestHandler);
+            services.AddTransient<ITweetService, TweetService>();
+            services.AddSingleton(WebhookClient);
+            services.AddSingleton(AccountActivityRequestHandler);
+            services.AddDbContext<TweetContext>(
+                options => options.UseSqlServer(Configuration["connectionString"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
