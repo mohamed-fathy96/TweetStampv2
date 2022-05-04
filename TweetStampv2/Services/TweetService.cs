@@ -20,22 +20,19 @@ namespace TweetStampv2.Services
     public class TweetService : ITweetService
     {
         private readonly ITwitterClient twitterClient;
-        private readonly IAccountActivityRequestHandler handler;
         private readonly IAccountActivityStream accountActivityStream;
         private readonly IConfiguration configuration;
         private readonly TweetContext context;
         private readonly long userId;
-        private string rawTweetUrl;
         public TweetService(ITwitterClient twitterClient, IAccountActivityRequestHandler handler,
             IConfiguration configuration, TweetContext context)
         {
             this.twitterClient = twitterClient;
-            this.handler = handler;
             this.configuration = configuration;
             userId = long.Parse(configuration["userId"]);
             this.accountActivityStream = handler.GetAccountActivityStream(userId, "development");
             this.context = context;
-            //this.userId = GetUserId().Result;
+            //this.userId = GetDevUserId().Result;
             //this.Subscribe();
         }
 
@@ -58,8 +55,6 @@ namespace TweetStampv2.Services
             {
                 var tweetUrl = (string)jsonObj["direct_message_events"][0]["message_create"]["message_data"]
                 ["entities"]["urls"][0]["expanded_url"];
-
-                rawTweetUrl = tweetUrl.Split('?')[0];
 
                 var tweetId = long.Parse(tweetUrl.Split("status/")[1].Split('?')[0]);
 
@@ -121,7 +116,6 @@ namespace TweetStampv2.Services
                 }
             }
         }
-
         private string HashTweet(string tweetJson)
         {
             StringBuilder Sb = new();
@@ -141,13 +135,12 @@ namespace TweetStampv2.Services
 
             return Sb.ToString();
         }
-
         private Tweet CreateTweet(ITweet tweet)
         {
             return new Tweet()
             {
                 Id = tweet.IdStr,
-                FullText = tweet.FullText,
+                FullText = tweet.Text,
                 Source = tweet.Source,
                 CreatedAt = tweet.CreatedAt.ToString(),
                 User = new TweetUser()
@@ -159,7 +152,6 @@ namespace TweetStampv2.Services
                 ExtendedEntities = new ExtendedEntities(tweet.Entities.Medias)
             };
         }
-
         private async void Subscribe()
         {
             var webhooks = await twitterClient.AccountActivity.GetAccountActivityEnvironmentWebhooksAsync("development");
@@ -185,8 +177,7 @@ namespace TweetStampv2.Services
 
             Trace.WriteLine(environmentState.Subscriptions[0].UserId);
         }
-
-        private async Task<long> GetUserId()
+        private async Task<long> GetDevUserId()
         {
             var environmentState = await twitterClient.AccountActivity.GetAccountActivitySubscriptionsAsync("development");
             return long.Parse(environmentState.Subscriptions[0].UserId);
@@ -199,26 +190,57 @@ namespace TweetStampv2.Services
 
             // TODO Get user Profile image, and name, save them to Db with tweet , update TweetModel
 
-            //var user = await twitterClient.Users.GetUserAsync(long.Parse(tweet.User.Id));
+            var user = await twitterClient.Users.GetUserAsync(long.Parse(tweet.User.Id));
+            var userProfileImgUrl = user.ProfileImageUrl;
+            var userFullName = user.Name;
 
             using (var context = new TweetContext(contextOptions))
             {
+                var embeddedTweet = await twitterClient.Tweets.GetOEmbedTweetAsync(long.Parse(tweet.Id));
+
                 var tweetModel = new TweetModel()
                 {
                     Id = long.Parse(tweet.Id),
-                    Url = rawTweetUrl,
+                    Url = embeddedTweet.URL,
                     Text = tweet.FullText,
                     UserId = tweet.User.Id,
                     CreatedAt = tweet.CreatedAt,
                     UserScreenName = tweet.User.ScreenName,
+                    UserFullName = userFullName,
+                    UserProfileImgUrl = userProfileImgUrl, 
+                    EmbbededTweetHTML = embeddedTweet.HTML,
                     Json = tweet.Json,
                     Hash = tweet.Hash
                 };
+
+                // TODO: Achieve this logic in a different way
+                switch (tweet.ExtendedEntities.Media.Count)
+				{
+                    case 1:
+                        tweetModel.MediaUrl1 = tweet.ExtendedEntities.Media[0].MediaUrl;
+                        break;
+                    case 2:
+                        tweetModel.MediaUrl1 = tweet.ExtendedEntities.Media[0].MediaUrl;
+                        tweetModel.MediaUrl2 = tweet.ExtendedEntities.Media[1].MediaUrl;
+                        break;
+                    case 3:
+                        tweetModel.MediaUrl1 = tweet.ExtendedEntities.Media[0].MediaUrl;
+                        tweetModel.MediaUrl2 = tweet.ExtendedEntities.Media[1].MediaUrl;
+                        tweetModel.MediaUrl3 = tweet.ExtendedEntities.Media[3].MediaUrl;
+                        break;
+                    case 4:
+                        tweetModel.MediaUrl1 = tweet.ExtendedEntities.Media[0].MediaUrl;
+                        tweetModel.MediaUrl2 = tweet.ExtendedEntities.Media[1].MediaUrl;
+                        tweetModel.MediaUrl3 = tweet.ExtendedEntities.Media[2].MediaUrl;
+                        tweetModel.MediaUrl4 = tweet.ExtendedEntities.Media[3].MediaUrl;
+                        break;
+                    default:
+                        break;
+				}
                 context.Tweets.Add(tweetModel);
                 await context.SaveChangesAsync();
             }
         }
-
         public async Task<TweetModel> GetTweetByIdAsync(long id)
         {
             return await context.Tweets.FirstOrDefaultAsync(t => t.Id == id);

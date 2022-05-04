@@ -1,11 +1,48 @@
-﻿@using TweetStampv2.Models;
-@model TweetModel
+﻿@model TweetModel
 
 @{
-    ViewData["Title"] = "GetTweetById";
+	ViewData["Title"] = @Model.UserScreenName;
 }
 
-<pre>
-    @Model.Json
-</pre>
+<div style="background-color:#f4f7f9;" class="row">
+	<h2 class="mx-auto pt-2  d-none d-sm-block d-xs-block">@Model.Url.Split(".com")[1]</h2>
+</div>
+<div class="row">
+
+	<div class="col col-md-6 pt-2">
+		<div class="d-flex justify-content-center">
+			<h3>Original Tweet</h3>
+		</div>
+		<div class="d-flex justify-content-center">
+			@Html.Raw((Model.EmbbededTweetHTML))
+		</div>
+	</div>
+	<div class="col col-md-6 pt-2">
+		<div class="d-flex justify-content-center">
+			<h3>Stamped Tweet</h3>
+		</div>
+		<div class="card mx-auto">
+			<div class="card-body">
+				<div class="media">
+					<img class="mr-3" src="@Model.UserProfileImgUrl" alt="twitter avi">
+					<div class="media-body">
+						<h5 class="card-title">@Model.UserFullName</h5>
+						<h6 class="card-subtitle mb-2 text-muted">@@@Model.UserScreenName</h6>
+					</div>
+				</div>
+				<p class="card-text" style="overflow-x: auto;font-family:SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-size:1em;">
+					@Model.Text
+					@Model.MediaUrl1
+					@Model.MediaUrl2
+					@Model.MediaUrl3
+					@Model.MediaUrl4
+				</p>
+				<small class="text-muted float-left">@Model.CreatedAt</small>
+				<p class="tweet-source float-right "><small class="text-muted"> <a href="https://mobile.twitter.com" rel="nofollow">Twitter Web App</a></small></p>
+			</div>
+		</div>
+
+	</div>
+
+</div>
 

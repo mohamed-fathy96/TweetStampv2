@@ -87,5 +87,8 @@
 	    <HintPath>m3api\VodafoneMobilImza.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="wwwroot\images\" />
+	</ItemGroup>
 
 </Project>

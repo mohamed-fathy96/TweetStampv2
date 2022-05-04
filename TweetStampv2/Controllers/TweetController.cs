@@ -37,7 +37,9 @@ namespace TweetStamp.Controllers
             //this.context = context;
         }
 
-        public void Index()
+        [HttpGet]
+        [Route("")]
+        public ActionResult Index()
         {
             //var accountActivityStream = handler.GetAccountActivityStream(1519700194912358400, "development");
 
@@ -45,7 +47,7 @@ namespace TweetStamp.Controllers
             //accountActivityStream.TweetCreated += ReplyWebhook;
 
             tweetService.WebhookSubscribe(Webhook, ReplyWebhook);
-
+            return View();
         }
 
         [HttpGet]
@@ -55,6 +57,12 @@ namespace TweetStamp.Controllers
             //var tweet = context.Tweets.FirstOrDefault(t => t.Id == id);
             var tweet = await tweetService.GetTweetByIdAsync(id);
             return View(tweet);
+        }
+
+        [Route("/about")]
+        public ActionResult About()
+        {
+            return View();
         }
 
         [HttpPost]

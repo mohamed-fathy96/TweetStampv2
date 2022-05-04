@@ -16,6 +16,13 @@ namespace TweetStampv2.Migrations
                     UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserScreenName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserFullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserProfileImgUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EmbbededTweetHTML = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MediaUrl1 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MediaUrl2 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MediaUrl3 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MediaUrl4 = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Json = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Hash = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },

@@ -21,11 +21,12 @@ namespace TweetStampv2.Migrations
             modelBuilder.Entity("TweetStampv2.Models.TweetModel", b =>
                 {
                     b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
 
                     b.Property<string>("CreatedAt")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmbbededTweetHTML")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Hash")
@@ -34,13 +35,31 @@ namespace TweetStampv2.Migrations
                     b.Property<string>("Json")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("MediaUrl1")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MediaUrl2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MediaUrl3")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MediaUrl4")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Text")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Url")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserFullName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserProfileImgUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserScreenName")

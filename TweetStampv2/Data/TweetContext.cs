@@ -10,6 +10,6 @@ namespace TweetStampv2.Data
         {
             
         }
-        public virtual DbSet<TweetModel> Tweets { get; set; }
+		public virtual DbSet<TweetModel> Tweets { get; set; }
     }
 }
