@@ -23,16 +23,18 @@ namespace TweetStampv2.Services
         private readonly IAccountActivityRequestHandler handler;
         private readonly IAccountActivityStream accountActivityStream;
         private readonly IConfiguration configuration;
+        private readonly TweetContext context;
         private readonly long userId;
         private string rawTweetUrl;
-        public TweetService(ITwitterClient twitterClient, IAccountActivityRequestHandler handler, 
-            IConfiguration configuration)
+        public TweetService(ITwitterClient twitterClient, IAccountActivityRequestHandler handler,
+            IConfiguration configuration, TweetContext context)
         {
             this.twitterClient = twitterClient;
-            this.handler = handler;           
+            this.handler = handler;
             this.configuration = configuration;
             userId = long.Parse(configuration["userId"]);
             this.accountActivityStream = handler.GetAccountActivityStream(userId, "development");
+            this.context = context;
             //this.userId = GetUserId().Result;
             //this.Subscribe();
         }
@@ -61,66 +63,62 @@ namespace TweetStampv2.Services
 
                 var tweetId = long.Parse(tweetUrl.Split("status/")[1].Split('?')[0]);
 
-                var tweet = await twitterClient.Tweets.GetTweetAsync(tweetId);
+                if (!await TweetExists(tweetId))
+                {
+                    await CreateAndSaveTweetAsync(tweetId);
+                    await twitterClient.Messages.PublishMessageAsync($"{configuration["hostUrl"]}/{tweetId}", senderId);
+                }
+                else
+                {
+                    await twitterClient.Messages.PublishMessageAsync($"{configuration["hostUrl"]}/{tweetId}", senderId);
+                }
 
-                var tweetObj = CreateTweet(tweet);
-
-                var tweetJson = Tweet.ToJson(tweetObj);
-
-                var tweetHash = HashTweet(tweetJson);
-
-                tweetObj.Hash = tweetHash;
-
-                await SaveTweetToDb(tweetObj);
-                
-                await twitterClient.Messages.PublishMessageAsync($"Here's your stringified tweet's hash: " +
-                    $"{tweetHash}", senderId);
             }
             catch (Exception ex)
             {
                 Trace.WriteLine(ex);
-                await twitterClient.Messages.PublishMessageAsync("Please send me a valid tweet Url.", senderId);
+                //await twitterClient.Messages.PublishMessageAsync("Please send me a valid tweet Url.", senderId);
             }
 
         }
-
         public async Task StampTweetMention(TweetCreatedEvent e)
         {
             var messageJson = e.Json;
             JObject jsonObj = JObject.Parse(messageJson);
-            var userTweetId = (string)jsonObj["tweet_create_events"][0]["id"];
-            var userName = (string)jsonObj["tweet_create_events"][0]["user"]["screen_name"];
-
-            try
+            if (((string)jsonObj["tweet_create_events"][0]["text"]).ToLower().Contains("stamp"))
             {
-                var tweetUrl = (string)jsonObj["tweet_create_events"][0]["in_reply_to_status_id_str"];
+                var userTweetId = (string)jsonObj["tweet_create_events"][0]["id"];
+                var userName = (string)jsonObj["tweet_create_events"][0]["user"]["screen_name"];
 
-                var tweetId = long.Parse(tweetUrl);
+                try
+                {
+                    var tweetUrl = (string)jsonObj["tweet_create_events"][0]["in_reply_to_status_id_str"];
 
-                var tweet = await twitterClient.Tweets.GetTweetAsync(tweetId);
-
-                var tweetObj = CreateTweet(tweet);
-
-                var tweetJson = Tweet.ToJson(tweetObj);
-
-                var tweetHash = HashTweet(tweetJson);
-
-                tweetObj.Hash = tweetHash;
-
-                await SaveTweetToDb(tweetObj);
-
-                await twitterClient.Tweets.PublishTweetAsync(
-                    new PublishTweetParameters($"@{userName} here's your stringified tweet's hash: " +
-                    $"{tweetHash}")
+                    var tweetId = long.Parse(tweetUrl);
+                    if (!await TweetExists(tweetId))
                     {
-                        InReplyToTweetId = long.Parse(userTweetId)
-                    });
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine(ex);
-                await twitterClient.Messages.PublishMessageAsync("If you would like to stamp a tweet," +
-                "please make sure to include the word 'stamp' in your reply.", long.Parse(userTweetId));
+                        await CreateAndSaveTweetAsync(tweetId);
+                        await twitterClient.Tweets.PublishTweetAsync(
+                        new PublishTweetParameters($"@{userName} {configuration["hostUrl"]}/{tweetId}")
+                        {
+                            InReplyToTweetId = long.Parse(userTweetId)
+                        });
+                    }
+                    else
+                    {
+                        await twitterClient.Tweets.PublishTweetAsync(
+                        new PublishTweetParameters($"@{userName} {configuration["hostUrl"]}/{tweetId}")
+                        {
+                            InReplyToTweetId = long.Parse(userTweetId)
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                    //await twitterClient.Messages.PublishMessageAsync("If you would like to stamp a tweet," +
+                    //"please make sure to include the word 'stamp' in your reply.", long.Parse(userTweetId));
+                }
             }
         }
 
@@ -170,7 +168,7 @@ namespace TweetStampv2.Services
                 await twitterClient.AccountActivity.DeleteAccountActivityWebhookAsync("development", webhooks[0]);
             }
             await twitterClient.AccountActivity.CreateAccountActivityWebhookAsync
-                    ("development", "https://4c78-197-38-146-68.eu.ngrok.io/Tweet/Webhook");
+                    ("development", "https://6575-197-38-216-196.eu.ngrok.io/Tweet/Webhook");
             await twitterClient.AccountActivity.SubscribeToAccountActivityAsync("development");
 
             var environmentState = await twitterClient.AccountActivity.GetAccountActivitySubscriptionsAsync("development");
@@ -198,7 +196,10 @@ namespace TweetStampv2.Services
             var contextOptions = new DbContextOptionsBuilder<TweetContext>()
                 .UseSqlServer(configuration["connectionString"])
                 .Options;
-            var user = await twitterClient.Users.GetUserAsync(long.Parse(tweet.User.Id));
+
+            // TODO Get user Profile image, and name, save them to Db with tweet , update TweetModel
+
+            //var user = await twitterClient.Users.GetUserAsync(long.Parse(tweet.User.Id));
 
             using (var context = new TweetContext(contextOptions))
             {
@@ -216,6 +217,35 @@ namespace TweetStampv2.Services
                 context.Tweets.Add(tweetModel);
                 await context.SaveChangesAsync();
             }
+        }
+
+        public async Task<TweetModel> GetTweetByIdAsync(long id)
+        {
+            return await context.Tweets.FirstOrDefaultAsync(t => t.Id == id);
+        }
+        private async Task<bool> TweetExists(long tweetId)
+        {
+            var contextOptions = new DbContextOptionsBuilder<TweetContext>()
+            .UseSqlServer(configuration["connectionString"])
+            .Options;
+            using (var context = new TweetContext(contextOptions))
+            {
+                return await context.Tweets.AnyAsync(t => t.Id == tweetId);
+            }
+        }
+        private async Task CreateAndSaveTweetAsync(long tweetId)
+        {
+            var tweet = await twitterClient.Tweets.GetTweetAsync(tweetId);
+
+            var tweetObj = CreateTweet(tweet);
+
+            var tweetJson = Tweet.ToJson(tweetObj);
+
+            var tweetHash = HashTweet(tweetJson);
+
+            tweetObj.Hash = tweetHash;
+
+            await SaveTweetToDb(tweetObj);
         }
     }
 }

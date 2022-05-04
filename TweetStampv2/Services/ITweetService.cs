@@ -11,5 +11,6 @@ namespace TweetStampv2.Services
             EventHandler<TweetCreatedEvent> ReplyWebhook);
         public Task StampTweetDM(MessageReceivedEvent e);
         public Task StampTweetMention(TweetCreatedEvent e);
+        public Task<TweetModel> GetTweetByIdAsync(long id);
     }
 }

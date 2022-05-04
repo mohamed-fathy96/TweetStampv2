@@ -20,15 +20,21 @@ using System.Threading.Tasks;
 using TweetStampv2.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using TweetStampv2.Models;
 
 namespace TweetStamp.Controllers
 {
     public class TweetController : Controller
     {
         private readonly ITweetService tweetService;
-        public TweetController(ITweetService tweetService, IConfiguration configuration)
+
+        
+
+        public TweetController(ITweetService tweetService)//, 
+            //TweetContext context)
         {
             this.tweetService = tweetService;
+            //this.context = context;
         }
 
         public void Index()
@@ -39,7 +45,16 @@ namespace TweetStamp.Controllers
             //accountActivityStream.TweetCreated += ReplyWebhook;
 
             tweetService.WebhookSubscribe(Webhook, ReplyWebhook);
-            return;
+
+        }
+
+        [HttpGet]
+        [Route("/{id}")]
+        public async Task<ActionResult<TweetModel>> GetTweetById(long id)
+        {
+            //var tweet = context.Tweets.FirstOrDefault(t => t.Id == id);
+            var tweet = await tweetService.GetTweetByIdAsync(id);
+            return View(tweet);
         }
 
         [HttpPost]
@@ -142,6 +157,7 @@ namespace TweetStamp.Controllers
             //    }
             //}
         }
+
 
     }
 }
