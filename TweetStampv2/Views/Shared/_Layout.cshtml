@@ -3,9 +3,16 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>@ViewData["Title"] - TWEETSTAMP</title>
+	<title>@ViewData["Title"] - TweetStamp</title>
 	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+	<script sync src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+	<link href="https://fonts.googleapis.com/css?family=Inconsolata:400,700" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700i" rel="stylesheet">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 	<link rel="stylesheet" href="~/css/site.css" />
+	<link rel="stylesheet" href="~/css/jsonstyle.css" />
+	<link rel="icon" type="image/png" href="/icons8-bitcoin-blockchain-pastel-16.png" sizes="16x16" />
+    <link rel="icon" type="image/png" href="/icons8-bitcoin-blockchain-pastel-32.png" sizes="32x32" />
 </head>
 <body>
 	<header>
@@ -26,11 +33,56 @@
 		@RenderBody()
 	</div>
 
-	<footer class="border-top footer" style="background-color: #3e4551">
-		<div class="container" style="color:white">
-			&copy; 2022 - TWEETSTAMP
-		</div>
-	</footer>
+<footer class="page-footer footer font-small stylish-color-dark pt-4 mt-4">
+    <!--Footer Links-->
+    <div class="container-fluid text-center text-md-left">
+        <!-- Footer links -->
+        <div class="row text-center text-md-left mt-3 pb-3 d-flex flex-wrap">
+
+            <!--First column-->
+            <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3 pr-3">
+                <h6 class="text-uppercase mb-4 font-weight-bold tweetstamp-brand">tweetstamp.org</h6>
+                <p>[Website description placeholder]</p>
+
+            </div>
+            <!--/.First column-->
+
+            <hr class="w-100 clearfix d-md-none">
+            <div class="col-md-9 d-flex flex-wrap justify-content-around">
+                <div class="p-3 mt-3 text-center">
+                    <h6 class="mb-3 font-weight-bold">BTC</h6>
+                    <p>
+                        <img class="img-responsive addys" src="~/images/bitcoin.jpg" alt="bitcoin">
+                    </p>
+                    <p>[Bitcoin address placeholder]</p>
+                </div>
+            </div>
+        </div>
+        <!-- Footer links -->
+
+        <hr>
+
+        <div class="row py-3 d-flex align-items-center">
+
+            <!--Grid column-->
+            <div class="col-md-8 col-lg-8">
+
+                <!--Copyright-->
+                <p class="text-center text-md-left grey-text">© @DateTime.Now.Year Copyright TweetStamp </p>
+                <!--/.Copyright-->
+
+            </div>
+            <!--Grid column-->
+
+            <!--Grid column-->
+            <div class="col-md-4 col-lg-4 ml-lg-0">
+
+            </div>
+            <!--Grid column-->
+        </div>
+    </div>
+
+</footer>
 	<script src="~/lib/jquery/dist/jquery.min.js"></script>
 	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="~/js/site.js" asp-append-version="true"></script>

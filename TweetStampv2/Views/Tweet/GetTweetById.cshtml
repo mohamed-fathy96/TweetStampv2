@@ -43,6 +43,54 @@
 		</div>
 
 	</div>
+</div>
+<div class="row pt-3"></div>
+<div class="row pt-3">
+	<div class="ots-section col col-md-6 mx-auto">
+		<h4>Tweet Data</h4>
+		<span id="jsonSpan" style="display:none;">@Model.Json</span>
+		<pre><code id=tweetJson></code></pre>
+		<h4>Stringifyed Tweet Data</h4>
+		<pre style="color: #e83e8c;"><code>@Model.Json</code></pre>	
+		            <h4>SHA256 of Stringifyed Tweet Data</h4>
+            <p>Use any SHA256 tool to verify. Be aware of double quotes with cli tools. Here is an online one: <a href="https://emn178.github.io/online-tools/sha256.html">https://emn178.github.io/online-tools/sha256.html</a></p>
+            <div>
+                <pre style="color: #e83e8c;"><code>@Model.Hash</code></pre>	
+            </div>
+			<h4>Stamping</h4>
+			<h1>Stamping Section placeholder</h1>
+	</div>
 
 </div>
+
+@section scripts
+    {
+<script type="text/javascript">
+				if (!library)
+	   var library = {};
+
+	library.json = {
+	   replacer: function(match, pIndent, pKey, pVal, pEnd) {
+		  var key = '<span class=json-key>';
+		  var val = '<span class=json-value>';
+		  var str = '<span class=json-string>';
+		  var r = pIndent || '';
+		  if (pKey)
+			 r = r + key + pKey.replace(/[": ]/g, '') + '</span>: ';
+		  if (pVal)
+			 r = r + (pVal[0] == '"' ? str : val) + pVal + '</span>';
+		  return r + (pEnd || '');
+		  },
+	   prettyPrint: function(obj) {
+		  var jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
+		  return JSON.stringify(obj, null, 3)
+			 .replace(/&/g, '&amp;').replace(/\\"/g, '&quot;')
+			 .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+			 .replace(jsonLine, library.json.replacer);
+		  }
+	   };
+	   var json = JSON.parse($('#jsonSpan').text());
+	   $('#tweetJson').html(library.json.prettyPrint(json));
+</script>
+    }
 

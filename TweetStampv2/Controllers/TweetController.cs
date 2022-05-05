@@ -27,9 +27,7 @@ namespace TweetStamp.Controllers
     public class TweetController : Controller
     {
         private readonly ITweetService tweetService;
-
-        
-
+      
         public TweetController(ITweetService tweetService)//, 
             //TweetContext context)
         {
@@ -39,7 +37,7 @@ namespace TweetStamp.Controllers
 
         [HttpGet]
         [Route("")]
-        public ActionResult Index()
+        public IActionResult Index()
         {
             //var accountActivityStream = handler.GetAccountActivityStream(1519700194912358400, "development");
 
@@ -55,12 +53,24 @@ namespace TweetStamp.Controllers
         public async Task<ActionResult<TweetModel>> GetTweetById(long id)
         {
             //var tweet = context.Tweets.FirstOrDefault(t => t.Id == id);
+            if (id == 0)
+                return RedirectToAction("Index");
+
             var tweet = await tweetService.GetTweetByIdAsync(id);
-            return View(tweet);
+
+            if(tweet != null)
+                return View(tweet);
+            return RedirectToAction("TweetNotFound");
+
         }
 
         [Route("/about")]
-        public ActionResult About()
+        public IActionResult About()
+        {
+            return View();
+        }
+        [Route("/notfound")]
+        public IActionResult TweetNotFound()
         {
             return View();
         }

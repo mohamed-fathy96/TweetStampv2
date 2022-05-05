@@ -1,71 +1,246 @@
-﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-
-a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
+﻿body {
+    font-family: 'Open Sans', -apple-system, 'Segoe UI', Roboto, Cantarell, sans-serif;
+    /* font-size: calc(14px + (26 - 14) * ((100vw - 300px) / (1600 - 300))); */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Provide sufficient contrast against white background */
-a {
-  color: #0366d6;
+.container {
+    flex: 1;
 }
+
+.card {
+    max-width: 500px;
+}
+
+    .card.stretched {
+        max-width: 100%;
+    }
 
 .btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+    box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);
+    transition: all .15s ease;
 }
 
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 7px 14px rgba(50,50,93,.1),0 3px 6px rgba(0,0,0,.08)
+    }
+
+    .btn-primary:active {
+        background-color: #f6f9fc;
+        transform: translateY(1px);
+        box-shadow: 0 4px 6px rgba(50,50,93,.11),0 1px 3px rgba(0,0,0,.08)
+    }
+
+    .btn-primary:focus {
+        outline: none;
+        box-shadow: 0 0 0 1.5px hsla(0,0%,100%,.75),inset 0 0 0 1.25px rgba(82,95,127,.5),0 7px 14px rgba(50,50,93,.1),0 3px 6px rgba(0,0,0,.08)
+    }
+
+.opentimestamps-logo {
+    border: solid blue 1px;
+    border-radius: 3px;
+    padding: 5px;
 }
 
-/* Sticky footer styles
--------------------------------------------------- */
-html {
-  font-size: 14px;
-}
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+@media screen and (max-width: 767.98px) {
+    .tweet-heading h2 {
+        font-size: 1.3rem;
+    }
 }
 
-.border-top {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom {
-  border-bottom: 1px solid #e5e5e5;
+.tweet-heading {
+    background-color: #f4f7f9;
 }
 
-.box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+    .tweet-heading h2 {
+        /* font-family: 'Inconsolata', monospace; */
+        font-family: SFMono-Regular, Consolas, Menlo, Monaco, monospace;
+        font-weight: 700;
+    }
+
+.addys {
+    max-width: 150px;
 }
 
-button.accept-policy {
+footer p {
+    font-size: 12px;
+}
+
+.tweetstamp-brand {
+    font-family: 'Open Sans';
+    font-weight: 700;
+    font-style: italic;
+}
+
+h2 {
+    font-weight: bold;
+}
+/* code,pre,p,small {
   font-size: 1rem;
-  line-height: inherit;
+} */
+
+code {
+    word-wrap: break-word;
 }
 
-/* Sticky footer styles
--------------------------------------------------- */
-html {
-  position: relative;
-  min-height: 100%;
+.ots-logo {
+    max-width: 60px;
 }
 
-body {
-  /* Margin bottom by footer height */
-  margin-bottom: 60px;
+.ots-details {
+    background-color: #f4f7f9;
+    padding: 10px;
 }
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px; /* Vertically center the text there */
+
+.ots-section h4 {
+    padding-top: 15px;
+}
+
+.tweet-source {
+    margin-bottom: 0;
+    margin-top: -5px;
+}
+
+.btn-primary, .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+    background-color: #004FA6;
+}
+
+.tweet-details {
+    font-size: 12px;
+    color: gray;
+}
+
+/* #twitter-oembed{
+  background: url(/images/twitter-sprite.png) center center no-repeat;
+  min-height: 170px;
+  min-width: 352px;
+  max-width: 500px;
+  border: solid #e1e8ed 1px;
+  border-radius: 5px;
+} */
+
+.twitter-bird-animation {
+    background-image: url(/images/twitter-sprite.png);
+    background-size: cover;
+    display: block;
+    position: relative;
+    height: 75px;
+    width: 75px;
+    margin: 50px auto 0 auto;
+    animation: 0.9s fly step-end infinite;
+}
+
+@keyframes fly {
+    0% {
+        background-position: 0 0;
+    }
+
+    33% {
+        background-position: -250 0;
+    }
+
+    66% {
+        background-position: -450px 0;
+    }
+}
+
+iframe {
+    margin: 0 auto !important;
+}
+
+twitterwidget {
+    margin: 0 auto;
+}
+
+.tweetbutton {
+    position: relative;
+    display: inline-block;
+    height: 28px;
+    box-sizing: border-box;
+    vertical-align: top;
+    zoom: 1;
+    padding: 1px 10px 1px 9px;
+    padding-top: 1px;
+    padding-right: 8px;
+    padding-bottom: 1px;
+    padding-left: 6px;
+    background-color: #1b95e0;
+    color: #fff;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 26px;
+    cursor: pointer;
+}
+
+    .tweetbutton:hover {
+        background-color: #0c7abf;
+        color: #fff;
+    }
+
+    .tweetbutton i {
+        top: 4px;
+        height: 18px;
+        width: 18px;
+        position: relative;
+        display: inline-block;
+        background: transparent 0 0 no-repeat;
+        background-image: url(../images/twitter.svg);
+    }
+
+/* JSON formatting */
+
+pre {
+    padding: 5px;
+    margin: 5px;
+    white-space: pre-wrap;
+}
+
+.string {
+    color: green;
+}
+
+.number {
+    color: darkorange;
+}
+
+.boolean {
+    color: blue;
+}
+
+.null {
+    color: magenta;
+}
+
+.key {
+    color: red;
+}
+
+.stylish-color-dark {
+    background-color: #3e4551;
+}
+
+footer.page-footer {
+    color: #fff;
+}
+
+.footer-link {
+    color: #fff;
+}
+
+    .footer-link:hover {
+        color: #f2f2f2;
+    }
+
+.pending {
+    color: #fff;
+    background-color: #6c757d;
+}
+
+.upgraded {
+    color: #fff;
+    background-color: #007bff;
 }

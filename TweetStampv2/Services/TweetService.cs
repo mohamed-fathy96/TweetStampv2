@@ -188,8 +188,6 @@ namespace TweetStampv2.Services
                 .UseSqlServer(configuration["connectionString"])
                 .Options;
 
-            // TODO Get user Profile image, and name, save them to Db with tweet , update TweetModel
-
             var user = await twitterClient.Users.GetUserAsync(long.Parse(tweet.User.Id));
             var userProfileImgUrl = user.ProfileImageUrl;
             var userFullName = user.Name;
