@@ -19,6 +19,9 @@ namespace TweetStampv2.Models
         public string MediaUrl2 { get; set; }
         public string MediaUrl3 { get; set; }
         public string MediaUrl4 { get; set; }
+        public string ValidationDescription { get; set; }
+        public string TimeStampInfo { get; set; }
+        public byte[] TsByteArr { get; set; }
         public string Json { get; set; }
         public string Hash { get; set; }
     }

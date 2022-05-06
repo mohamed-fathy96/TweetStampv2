@@ -12,5 +12,7 @@ namespace TweetStampv2.Services
         public Task StampTweetDM(MessageReceivedEvent e);
         public Task StampTweetMention(TweetCreatedEvent e);
         public Task<TweetModel> GetTweetByIdAsync(long id);
+
+        public Tweet StampTweet(string tweetJson, Tweet tweet);
     }
 }

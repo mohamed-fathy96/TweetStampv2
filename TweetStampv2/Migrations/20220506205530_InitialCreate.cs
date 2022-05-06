@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TweetStampv2.Migrations
 {
@@ -23,6 +24,9 @@ namespace TweetStampv2.Migrations
                     MediaUrl2 = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MediaUrl3 = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MediaUrl4 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ValidationDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TimeStampInfo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TsByteArr = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     Json = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Hash = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },

@@ -1,18 +1,32 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using tr.gov.tubitak.uekae.esya.api.asn.cms;
+using tr.gov.tubitak.uekae.esya.api.asn.pkixtsp;
+using tr.gov.tubitak.uekae.esya.api.asn.x509;
+using tr.gov.tubitak.uekae.esya.api.certificate.validation.policy;
+using tr.gov.tubitak.uekae.esya.api.cmssignature.signature;
+using tr.gov.tubitak.uekae.esya.api.cmssignature.validation;
+using tr.gov.tubitak.uekae.esya.api.common.util;
+using tr.gov.tubitak.uekae.esya.api.crypto.alg;
+using tr.gov.tubitak.uekae.esya.api.crypto.util;
+using tr.gov.tubitak.uekae.esya.api.infra.tsclient;
 using Tweetinvi;
 using Tweetinvi.Events;
 using Tweetinvi.Models;
 using Tweetinvi.Parameters;
 using Tweetinvi.Streaming;
 using TweetStampv2.Data;
+using TweetStampv2.m3api.tr_TR;
 using TweetStampv2.Models;
 
 namespace TweetStampv2.Services
@@ -23,17 +37,22 @@ namespace TweetStampv2.Services
         private readonly IAccountActivityStream accountActivityStream;
         private readonly IConfiguration configuration;
         private readonly TweetContext context;
-        private readonly long userId;
+        private static IWebhook[] webhooks;
         public TweetService(ITwitterClient twitterClient, IAccountActivityRequestHandler handler,
             IConfiguration configuration, TweetContext context)
         {
             this.twitterClient = twitterClient;
             this.configuration = configuration;
-            userId = long.Parse(configuration["userId"]);
-            this.accountActivityStream = handler.GetAccountActivityStream(userId, "development");
+            var userId = long.Parse(configuration["userId"]);
+            this.accountActivityStream = handler.GetAccountActivityStream(userId, configuration["envName"]);
             this.context = context;
-            //this.userId = GetDevUserId().Result;
-            //this.Subscribe();
+
+            // TODO: Uncomment this before deploying
+
+            //if (webhooks == null)
+            //{
+            //    this.Subscribe();
+            //}
         }
 
         public void WebhookSubscribe(EventHandler<MessageReceivedEvent> Webhook,
@@ -71,8 +90,7 @@ namespace TweetStampv2.Services
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex);
-                //await twitterClient.Messages.PublishMessageAsync("Please send me a valid tweet Url.", senderId);
+                Trace.WriteLine(ex);              
             }
 
         }
@@ -116,23 +134,14 @@ namespace TweetStampv2.Services
                 }
             }
         }
-        private string HashTweet(string tweetJson)
+        private string ByteArrToString(byte[] arr)
         {
             StringBuilder Sb = new();
 
-            using (var hash = SHA256.Create())
+            foreach (var b in arr)
             {
-
-                Encoding enc = Encoding.UTF8;
-
-                byte[] result = hash.ComputeHash(enc.GetBytes(tweetJson));
-                var stringResult = Convert.ToHexString(result);
-                foreach (var b in result)
-                {
-                    Sb.Append(b.ToString("x2"));
-                }
+                Sb.Append(b.ToString("x2"));
             }
-
             return Sb.ToString();
         }
         private Tweet CreateTweet(ITweet tweet)
@@ -154,28 +163,25 @@ namespace TweetStampv2.Services
         }
         private async void Subscribe()
         {
-            var webhooks = await twitterClient.AccountActivity.GetAccountActivityEnvironmentWebhooksAsync("development");
-            if (webhooks.Length > 0)
-            {
-                await twitterClient.AccountActivity.DeleteAccountActivityWebhookAsync("development", webhooks[0]);
-            }
+            webhooks = await twitterClient.AccountActivity.GetAccountActivityEnvironmentWebhooksAsync("development");
+
+            //TODO: Change to actual hosting domain
             await twitterClient.AccountActivity.CreateAccountActivityWebhookAsync
-                    ("development", "https://6575-197-38-216-196.eu.ngrok.io/Tweet/Webhook");
-            await twitterClient.AccountActivity.SubscribeToAccountActivityAsync("development");
+                    (configuration["envName"], "https://8c9d-197-38-209-20.eu.ngrok.io/Tweet/Webhook");
+            await twitterClient.AccountActivity.SubscribeToAccountActivityAsync(configuration["envName"]);
 
-            var environmentState = await twitterClient.AccountActivity.GetAccountActivitySubscriptionsAsync("development");
-            var userId = long.Parse(environmentState.Subscriptions[0].UserId);
+            //var environmentState = await twitterClient.AccountActivity.GetAccountActivitySubscriptionsAsync(configuration["envName"]);
+            //var userId = long.Parse(environmentState.Subscriptions[0].UserId);
 
-            // This requires applications credentials with a bearer token
-            var environments = await twitterClient.AccountActivity.GetAccountActivityWebhookEnvironmentsAsync();
+            //// This requires applications credentials with a bearer token
+            //var environments = await twitterClient.AccountActivity.GetAccountActivityWebhookEnvironmentsAsync();
 
-            // the sandbox environment is available within the free tier
-            var developmentEnvironment = environments.Single(x => x.Name == "development");
+            //// the sandbox environment is available within the free tier
+            //var developmentEnvironment = environments.Single(x => x.Name == "development");
 
-            // registered webhooks url are available in the Webhooks collection
-            var registeredWebhooks = developmentEnvironment.Webhooks;
+            //// registered webhooks url are available in the Webhooks collection
+            //var registeredWebhooks = developmentEnvironment.Webhooks;
 
-            Trace.WriteLine(environmentState.Subscriptions[0].UserId);
         }
         private async Task<long> GetDevUserId()
         {
@@ -205,15 +211,18 @@ namespace TweetStampv2.Services
                     CreatedAt = tweet.CreatedAt,
                     UserScreenName = tweet.User.ScreenName,
                     UserFullName = userFullName,
-                    UserProfileImgUrl = userProfileImgUrl, 
+                    UserProfileImgUrl = userProfileImgUrl,
                     EmbbededTweetHTML = embeddedTweet.HTML,
+                    ValidationDescription = tweet.ValidationDescription,
+                    TimeStampInfo = tweet.TimeStampInfo,
+                    TsByteArr = tweet.TsByteArr,
                     Json = tweet.Json,
                     Hash = tweet.Hash
                 };
 
                 // TODO: Achieve this logic in a different way
                 switch (tweet.ExtendedEntities.Media.Count)
-				{
+                {
                     case 1:
                         tweetModel.MediaUrl1 = tweet.ExtendedEntities.Media[0].MediaUrl;
                         break;
@@ -234,7 +243,7 @@ namespace TweetStampv2.Services
                         break;
                     default:
                         break;
-				}
+                }
                 context.Tweets.Add(tweetModel);
                 await context.SaveChangesAsync();
             }
@@ -261,11 +270,81 @@ namespace TweetStampv2.Services
 
             var tweetJson = Tweet.ToJson(tweetObj);
 
-            var tweetHash = HashTweet(tweetJson);
-
-            tweetObj.Hash = tweetHash;
+            tweetObj = StampTweet(tweetJson, tweetObj);
 
             await SaveTweetToDb(tweetObj);
         }
+        public Tweet StampTweet(string tweetJson, Tweet tweet)
+        {
+            byte[] data = Encoding.UTF8.GetBytes(tweetJson);
+            byte[] digest = DigestUtil.digest(DigestAlg.SHA256, data);
+
+            tweet.Hash = ByteArrToString(digest);
+
+            TSClient tsClient = new TSClient();
+            TSSettings settings = new TSSettings("http://tzd.kamusm.gov.tr", int.Parse(configuration["stampUserId"]),
+            configuration["stampUserPassword"], DigestAlg.SHA256);
+            ETimeStampResponse response = tsClient.timestamp(digest, settings);
+            byte[] tsBytes = response.getContentInfo().getEncoded();
+            tweet.TsByteArr = tsBytes;
+
+            ////////////////////////////
+
+            EContentInfo ci = new(tsBytes);
+            ESignedData sd = new(ci.getContent());
+            ETSTInfo tstInfo = new(sd.getEncapsulatedContentInfo().getContent());
+
+            tweet.TimeStampInfo = ByteArrToString(tstInfo.getBytes());
+
+            byte[] digestInTS = tstInfo.getHashedMessage();
+
+            DigestAlg digestAlg = DigestAlg.fromAlgorithmIdentifier(tstInfo.getHashAlgorithm());
+
+            byte[] actualDigest = DigestUtil.digest(digestAlg, data);
+            if (!Arrays.AreEqual(digest, digestInTS))
+                Trace.WriteLine("Hashes do not match");
+
+            ////////////////////////
+
+            ////var policyFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"m3api/certval-policy.xml");
+            //params_["P_VALIDATE_CERTIFICATE_BEFORE_SIGNING"] = false;
+            var params_ = new Dictionary<string, object>();
+            var POLICY_FILE = Path.Combine("m3api", "certval-policy.xml");
+            //var policyFilePath = @"D:\ITI\Freelancer\TweetStamp Project\TweetStampv2\TweetStampv2\TweetStampv2\m3api\certval-policy.xml";
+            //ValidationPolicy policy = PolicyReader.readValidationPolicy(new FileStream(policyFilePath, FileMode.Open, FileAccess.Read));
+            params_["P_VALIDATE_TIMESTAMP_WHILE_SIGNING"] = true;
+            params_["P_TSS_INFO"] = settings;
+            params_["P_CERT_VALIDATION_POLICY"] = TestConstants.GetPolicy(POLICY_FILE);
+            SignedDataValidation sdv = new();
+            SignedDataValidationResult sdvr = sdv.verify(tsBytes, params_);
+            tweet.ValidationDescription = sdvr.ToString();
+            return tweet;
+
+            //if (sdvr.getSDStatus() != SignedData_Status.ALL_VALID)
+            //    Trace.WriteLine("Failed to verify timestamp");
+
+            ///////////////////
+
+        }
+        //private static ValidationPolicy TestConstants()
+        //{
+        //    string dir = Directory.GetCurrentDirectory();
+
+        //    var LICENCE_FILE = Path.Combine("m3api","lisans", "lisans.xml");
+
+        //    setLicence(LICENCE_FILE);
+
+        //    var POLICY_FILE = Path.Combine("m3api", "certval-policy-malimuhur.xml");
+        //    return PolicyReader.readValidationPolicy(new FileStream(POLICY_FILE, FileMode.Open, FileAccess.Read));
+        //}
+
+        //private static void setLicence(string LICENCE_FILE)
+        //{
+        //    using (Stream license = new FileStream(LICENCE_FILE, FileMode.Open, FileAccess.Read))
+        //    {
+        //        LicenseUtil.setLicenseXml(license);
+        //    }
+        //}
     }
+
 }

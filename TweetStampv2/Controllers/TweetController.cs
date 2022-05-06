@@ -1,26 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Security.Cryptography;
-using System.Text;
-using Tweetinvi;
-using Tweetinvi.Events;
-using Tweetinvi.Models;
-using System.Diagnostics;
-using RestSharp;
-using TweetStampv2.DTOs;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using Tweetinvi.Parameters;
-using TweetStampv2.Services;
 using System.Threading.Tasks;
-using TweetStampv2.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Tweetinvi.Events;
 using TweetStampv2.Models;
+using TweetStampv2.Services;
 
 namespace TweetStamp.Controllers
 {
@@ -28,11 +10,9 @@ namespace TweetStamp.Controllers
     {
         private readonly ITweetService tweetService;
       
-        public TweetController(ITweetService tweetService)//, 
-            //TweetContext context)
+        public TweetController(ITweetService tweetService)
         {
             this.tweetService = tweetService;
-            //this.context = context;
         }
 
         [HttpGet]
@@ -175,6 +155,14 @@ namespace TweetStamp.Controllers
             //    }
             //}
         }
+
+        //[HttpGet]
+        //[Route("/Tweet/test")]
+        //public async Task TestTweetStamp()
+        //{
+        //    var tweet = await tweetService.GetTweetByIdAsync(1521422674722971648);
+        //    //tweetService.StampTweet(tweet.Json);
+        //}
 
 
     }
