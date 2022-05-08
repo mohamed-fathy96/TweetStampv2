@@ -1,6 +1,6 @@
 # TweetStampv2
 
-This is a website clone for a freelancing project built using ASP.NET MVC
+This is a website clone for a freelancing project built using ASP.NET MVC and utilizing Twitter's APIs, with the core Twitter Api utilized being Twitter's Account Activity API
 
 # Details
 
