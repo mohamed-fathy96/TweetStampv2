@@ -1,6 +1,6 @@
 # TweetStampv2
 
-This is a website clone for a freelancing project built using ASP.NET MVC and utilizing Twitter's APIs, with the core Twitter Api utilized being Twitter's Account Activity API
+This is a website clone (based on https://tweetstamp.org) for a freelancing project built using ASP.NET MVC and utilizing Twitter's APIs, with the core Twitter Api utilized being Twitter's Account Activity API
 
 # Details
 
@@ -10,7 +10,7 @@ The website is built using ASP.NET MVC, it utilizes TweetInvi library (https://g
 
 # Functionality
 
-The application's main functionality is that users send a Tweet link (or mention them in a tweet) to the Twitter developer account used in the app, the tweet is converted to JSON and saved to a SQL Server database, it is also timestamped using MA3 Api and a page returns to the user containing the stamped Tweet, an embedded original Tweet, the tweet JSON, stringified JSON, the SHA256 Hash digest of the tweet, the timestamp proof and the timestamp verification information.
+The application's main functionality is that users send a Tweet link (or mention them in a tweet) to the Twitter developer account used in the app, and using a Twitter API endpoint which utilizies webhooks, the tweet is sent to the application, the tweet is then converted to JSON and saved to a SQL Server database, it is also timestamped using MA3 Api and a page returns to the user containing the stamped Tweet, an embedded original Tweet, the tweet JSON, stringified JSON, the SHA256 Hash digest of the tweet, the timestamp proof and the timestamp verification information.
 
 # Screenshots
 
